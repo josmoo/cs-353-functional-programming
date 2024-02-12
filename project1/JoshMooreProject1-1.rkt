@@ -140,14 +140,18 @@
 ;@param continue           Boolean flag. True if we haven't finished, false once we've reached the end
 ;@returns    hiscore-poss-lyst
 (define (find-highest-scoring-player hsh pos hiscore-poss-lyst continue)
-         
+    (define (recurse lyst)
+        (find-highest-scoring-player hsh (add1 pos) lyst (hash-iterate-next hsh pos)))
+    (define (compare-val)
+      (compare-scores hsh pos hsh (first hiscore-poss-lyst)))
+    
     (if continue
-        (cond ;this should probably utilize lambda or something
-            [(> (compare-scores hsh pos hsh (first hiscore-poss-lyst)) 0)
-                (find-highest-scoring-player hsh (add1 pos) (list pos) (hash-iterate-next hsh pos))]
-            [(< (compare-scores hsh pos hsh (first hiscore-poss-lyst)) 0)
-                (find-highest-scoring-player hsh (add1 pos) hiscore-poss-lyst (hash-iterate-next hsh pos))]
-            [else (find-highest-scoring-player hsh (add1 pos) (append (list pos) hiscore-poss-lyst)(hash-iterate-next hsh pos))]
+        (cond 
+            [(> (compare-val) 0)
+                (recurse (list pos))]
+            [(< (compare-val) 0)
+                (recurse hiscore-poss-lyst)]
+            [else (recurse (append (list pos) hiscore-poss-lyst))]
         )
         hiscore-poss-lyst
     )
